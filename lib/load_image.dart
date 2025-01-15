@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -6,13 +9,12 @@ class LoadImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    pickImage();
-    
     return const Placeholder();
   }
 
-  Future pickImage() async {
+  static Future<Image> pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    return Image.network(image!.path);
   }
 }

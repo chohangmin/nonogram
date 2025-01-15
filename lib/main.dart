@@ -51,14 +51,8 @@ class HomeScreen extends StatelessWidget {
               height: 10,
             ),
             TextButton(
-              onPressed: () => showDialog(
-                  context: context,
-                  builder: (context) => const AlertDialog(
-                        content: SizedBox(
-                          height: 400,
-                          child: LoadImage(),
-                        ),
-                      )),
+              
+              onPressed: () => Navigator.push(context, ),
               style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.all(Colors.purple)),
               child: const Text(
