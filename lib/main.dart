@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nonogram/load_image.dart';
+import 'package:nonogram/load_image_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -51,8 +51,10 @@ class HomeScreen extends StatelessWidget {
               height: 10,
             ),
             TextButton(
-              
-              onPressed: () => Navigator.push(context, ),
+              onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const LoadImagePage())),
               style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.all(Colors.purple)),
               child: const Text(
