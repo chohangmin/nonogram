@@ -10,7 +10,6 @@ class LoadImagePage extends StatefulWidget {
 
   @override
   State<LoadImagePage> createState() => _LoadImagePageState();
-
 }
 
 class _LoadImagePageState extends State<LoadImagePage> {
@@ -47,6 +46,9 @@ class _LoadImagePageState extends State<LoadImagePage> {
     final Uint8List pixels = byteData.buffer.asUint8List();
     final Uint8List pixelated = Uint8List(width * height * 4);
 
+    List<List<int>> matrix =
+        List.generate(height, (_) => List.filled(width, 0));
+
     for (int y = 0; y < height; y += pixelSize) {
       for (int x = 0; x < width; x += pixelSize) {
         int sum = 0;
@@ -73,10 +75,15 @@ class _LoadImagePageState extends State<LoadImagePage> {
             pixelated[index + 1] = grayscale;
             pixelated[index + 2] = grayscale;
             pixelated[index + 3] = 255;
+
+            matrix[dy][dx] = grayscale == 255 ? 0 : 1;
           }
         }
       }
     }
+
+    // final matrix = _convertToMatrix(pixelated, width, height);
+    print(" Matrix :: \n $matrix");
 
     final Completer<ui.Image> completer = Completer();
     ui.decodeImageFromPixels(
@@ -113,7 +120,7 @@ class _LoadImagePageState extends State<LoadImagePage> {
                     final ui.Image originalImage =
                         await _decodeImage(imageData);
                     final ui.Image pixelArtImage =
-                        await _convertToPixelArt(originalImage, 10);
+                        await _convertToPixelArt(originalImage, 20);
                     setState(() {
                       _pixelatedImage = pixelArtImage;
                     });
