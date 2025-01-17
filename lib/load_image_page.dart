@@ -15,6 +15,7 @@ class LoadImagePage extends StatefulWidget {
 class _LoadImagePageState extends State<LoadImagePage> {
   XFile? _loadedImage;
   ui.Image? _pixelatedImage;
+  List<List<int>> matrix2d = [];
 
   void _setImageFile(XFile? value) {
     _loadedImage = value;
@@ -46,16 +47,21 @@ class _LoadImagePageState extends State<LoadImagePage> {
     final Uint8List pixels = byteData.buffer.asUint8List();
     final Uint8List pixelated = Uint8List(width * height * 4);
 
-    List<List<int>> matrix =
-        List.generate(height, (_) => List.filled(width, 0));
+    final int divWidth = width ~/ pixelSize;
+    final int divHeight = height ~/ pixelSize;
 
-    for (int y = 0; y < height; y += pixelSize) {
-      for (int x = 0; x < width; x += pixelSize) {
+    final floorWidth = (width ~/ 10) * 10;
+    final floorHeight = (height ~/ 10) * 10;
+
+    final Uint8List matrix1d = Uint8List(divWidth * divHeight);
+
+    for (int y = 0; y < floorHeight; y += pixelSize) {
+      for (int x = 0; x < floorWidth; x += pixelSize) {
         int sum = 0;
         int count = 0;
 
-        for (int dy = 0; dy < pixelSize && y + dy < height; dy++) {
-          for (int dx = 0; dx < pixelSize && x + dx < width; dx++) {
+        for (int dy = 0; dy < pixelSize && y + dy < floorHeight; dy++) {
+          for (int dx = 0; dx < pixelSize && x + dx < floorWidth; dx++) {
             final int index = ((y + dy) * width + (x + dx)) * 4;
             final int r = pixels[index];
             final int g = pixels[index + 1];
@@ -68,27 +74,60 @@ class _LoadImagePageState extends State<LoadImagePage> {
         final int avg = sum ~/ count;
         final int grayscale = avg > 128 ? 255 : 0;
 
-        for (int dy = 0; dy < pixelSize && y + dy < height; dy++) {
-          for (int dx = 0; dx < pixelSize && x + dx < width; dx++) {
+        for (int dy = 0; dy < pixelSize && y + dy < floorHeight; dy++) {
+          for (int dx = 0; dx < pixelSize && x + dx < floorWidth; dx++) {
             final int index = ((y + dy) * width + (x + dx)) * 4;
             pixelated[index] = grayscale;
             pixelated[index + 1] = grayscale;
             pixelated[index + 2] = grayscale;
             pixelated[index + 3] = 255;
-
-            matrix[dy][dx] = grayscale == 255 ? 0 : 1;
           }
         }
+
+        // print("x $x");
+        // print("y $y");
+        // print("real x ${x ~/ pixelSize}");
+        // print("real y ${y ~/ pixelSize}");
+
+        // print(
+        //     "index : ${(x ~/ pixelSize) + (y ~/ pixelSize) * (width ~/ pixelSize)}");
+
+        matrix1d[(x ~/ pixelSize) + (y ~/ pixelSize) * (width ~/ pixelSize)] =
+            grayscale == 255 ? 0 : 1;
       }
     }
 
-    // final matrix = _convertToMatrix(pixelated, width, height);
-    print(" Matrix :: \n $matrix");
+    print("width / pixelSize : $divWidth");
+    print("height / pixelSize : $divHeight");
+    // print("width $width");
+    // print("height $height");
+
+    // print("matrix 1d length : ${divHeight * divWidth}");
+
+    List<List<int>> resultMatrix2d =
+        convertTo2dArray(matrix1d, divWidth, divHeight);
+
+    setState(() {
+      matrix2d = resultMatrix2d;
+    });
+
+    print(matrix1d);
+
+    print(matrix2d);
 
     final Completer<ui.Image> completer = Completer();
     ui.decodeImageFromPixels(
         pixelated, width, height, ui.PixelFormat.rgba8888, completer.complete);
     return completer.future;
+  }
+
+  List<List<int>> convertTo2dArray(Uint8List data, int width, int height) {
+    List<List<int>> result = [];
+
+    for (int i = 0; i < height; i++) {
+      result.add(data.sublist(i * width, (i + 1) * width));
+    }
+    return result;
   }
 
   @override
@@ -120,7 +159,7 @@ class _LoadImagePageState extends State<LoadImagePage> {
                     final ui.Image originalImage =
                         await _decodeImage(imageData);
                     final ui.Image pixelArtImage =
-                        await _convertToPixelArt(originalImage, 20);
+                        await _convertToPixelArt(originalImage, 10);
                     setState(() {
                       _pixelatedImage = pixelArtImage;
                     });

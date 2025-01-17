@@ -17,3 +17,5 @@ samples, guidance on mobile development, and a full API reference.
 
 #고쳐야할 점
 convert시 png밖에 안된다? jpg는 안되는건가?
+
+사진의 길이가 만일 10의 배수가 아니라면, ex 158, 나머지 8의 데이터는 잘라진다.
