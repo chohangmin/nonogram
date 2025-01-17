@@ -16,6 +16,9 @@ class _LoadImagePageState extends State<LoadImagePage> {
   XFile? _loadedImage;
   ui.Image? _pixelatedImage;
   List<List<int>> matrix2d = [];
+  int pixelSize = 10;
+
+  ui.Image? _originalImage;
 
   void _setImageFile(XFile? value) {
     _loadedImage = value;
@@ -158,8 +161,13 @@ class _LoadImagePageState extends State<LoadImagePage> {
                         await _loadedImage!.readAsBytes();
                     final ui.Image originalImage =
                         await _decodeImage(imageData);
+
+                    setState(() {
+                      _originalImage = originalImage;
+                    });
+
                     final ui.Image pixelArtImage =
-                        await _convertToPixelArt(originalImage, 10);
+                        await _convertToPixelArt(originalImage, pixelSize);
                     setState(() {
                       _pixelatedImage = pixelArtImage;
                     });
@@ -175,11 +183,61 @@ class _LoadImagePageState extends State<LoadImagePage> {
           Row(
             children: [
               _loadedImage != null
-                  ? Expanded(
+                  ? Container(
                       child: _pixelatedImage != null
-                          ? CustomPaint(
-                              painter: PixelArtPainter(_pixelatedImage!),
-                              child: Container(),
+                          ? Column(
+                              children: [
+                                CustomPaint(
+                                  painter: PixelArtPainter(_pixelatedImage!),
+                                  child: Container(),
+                                ),
+                                const SizedBox(
+                                  height: 300,
+                                ),
+                                Expanded(
+                                  child: GridView.builder(
+                                    scrollDirection: Axis.vertical,
+                                    shrinkWrap: true,
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                      mainAxisSpacing: 16.0,
+                                      crossAxisSpacing: 16.0,
+                                    ),
+                                    itemBuilder: (context, index) {
+                                      return Container(
+                                        color: Colors.red,
+                                      );
+                                    },
+                                    itemCount: 300,
+                                  ),
+                                ),
+                                // Expanded(
+                                //   child: GridView.builder(
+                                //     scrollDirection: Axis.horizontal,
+                                //     shrinkWrap: true,
+                                //     gridDelegate:
+                                //         SliverGridDelegateWithFixedCrossAxisCount(
+                                //             crossAxisCount:
+                                //                 _originalImage!.width ~/
+                                //                     pixelSize,
+                                //             crossAxisSpacing: 16.0,
+                                //             mainAxisSpacing: 16.0),
+                                //     itemBuilder: (context, index) {
+                                //       return GestureDetector(
+                                //         onTap: () {},
+                                //         child: Container(
+                                //           color: Colors.black,
+                                //         ),
+                                //       );
+                                //     },
+                                //     itemCount: _originalImage!.width ~/
+                                //         pixelSize *
+                                //         _originalImage!.height ~/
+                                //         pixelSize,
+                                //   ),
+                                // ),
+                              ],
                             )
                           : Image.network(_loadedImage!.path))
                   : const Text('No image loaded'),
