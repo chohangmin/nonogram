@@ -21,19 +21,6 @@ class _LoadImagePageState extends State<LoadImagePage> {
 
   ui.Image? _originalImage;
 
-  void _setImageFile(XFile? value) {
-    _loadedImage = value;
-  }
-
-  Future<Uint8List?> pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      return image.readAsBytes();
-    }
-    return null;
-  }
-
   Future<ui.Image> _decodeImage(Uint8List imageData) async {
     final Completer<ui.Image> completer = Completer();
     ui.decodeImageFromList(imageData, completer.complete);
@@ -51,13 +38,13 @@ class _LoadImagePageState extends State<LoadImagePage> {
     final Uint8List pixels = byteData.buffer.asUint8List();
     final Uint8List pixelated = Uint8List(width * height * 4);
 
-    final int divWidth = width ~/ pixelSize;
-    final int divHeight = height ~/ pixelSize;
+    final int boundedWidth = width ~/ pixelSize;
+    final int boundedHeight = height ~/ pixelSize;
 
     final floorWidth = (width ~/ 10) * 10;
     final floorHeight = (height ~/ 10) * 10;
 
-    final Uint8List resultMatrix1d = Uint8List(divWidth * divHeight);
+    final Uint8List resultMatrix1d = Uint8List(boundedWidth * boundedHeight);
 
     for (int y = 0; y < floorHeight; y += pixelSize) {
       for (int x = 0; x < floorWidth; x += pixelSize) {
@@ -101,15 +88,18 @@ class _LoadImagePageState extends State<LoadImagePage> {
       }
     }
 
-    print("width / pixelSize : $divWidth");
-    print("height / pixelSize : $divHeight");
+    print("boundedwidth : width / pixelSize : $boundedWidth");
+    print("boundedheight : height / pixelSize : $boundedHeight");
+
+    print("floor width : $floorWidth");
+    print("floor height : $floorHeight");
     // print("width $width");
     // print("height $height");
 
     // print("matrix 1d length : ${divHeight * divWidth}");
 
     List<List<int>> resultMatrix2d =
-        convertTo2dArray(resultMatrix1d, divWidth, divHeight);
+        convertTo2dArray(resultMatrix1d, boundedWidth, boundedHeight);
 
     setState(() {
       matrix2d = resultMatrix2d;
@@ -162,8 +152,9 @@ class _LoadImagePageState extends State<LoadImagePage> {
                   final ImagePicker picker = ImagePicker();
                   final XFile? image =
                       await picker.pickImage(source: ImageSource.gallery);
+
                   setState(() {
-                    _setImageFile(image);
+                    _loadedImage = image;
                   });
                 },
                 child: const Text('Load Imgae'),
@@ -231,8 +222,6 @@ class _LoadImagePageState extends State<LoadImagePage> {
                                   _originalImage!.height ~/
                                   pixelSize,
                             )
-
-
                           : Image.network(_loadedImage!.path))
                   : const Text('No image loaded'),
             ),
