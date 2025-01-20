@@ -15,6 +15,7 @@ class LoadImagePage extends StatefulWidget {
 class _LoadImagePageState extends State<LoadImagePage> {
   XFile? _loadedImage;
   ui.Image? _pixelatedImage;
+  List<int> matrix1d = [];
   List<List<int>> matrix2d = [];
   int pixelSize = 10;
 
@@ -56,7 +57,7 @@ class _LoadImagePageState extends State<LoadImagePage> {
     final floorWidth = (width ~/ 10) * 10;
     final floorHeight = (height ~/ 10) * 10;
 
-    final Uint8List matrix1d = Uint8List(divWidth * divHeight);
+    final Uint8List resultMatrix1d = Uint8List(divWidth * divHeight);
 
     for (int y = 0; y < floorHeight; y += pixelSize) {
       for (int x = 0; x < floorWidth; x += pixelSize) {
@@ -95,8 +96,8 @@ class _LoadImagePageState extends State<LoadImagePage> {
         // print(
         //     "index : ${(x ~/ pixelSize) + (y ~/ pixelSize) * (width ~/ pixelSize)}");
 
-        matrix1d[(x ~/ pixelSize) + (y ~/ pixelSize) * (width ~/ pixelSize)] =
-            grayscale == 255 ? 0 : 1;
+        resultMatrix1d[(x ~/ pixelSize) +
+            (y ~/ pixelSize) * (width ~/ pixelSize)] = grayscale == 255 ? 0 : 1;
       }
     }
 
@@ -108,15 +109,28 @@ class _LoadImagePageState extends State<LoadImagePage> {
     // print("matrix 1d length : ${divHeight * divWidth}");
 
     List<List<int>> resultMatrix2d =
-        convertTo2dArray(matrix1d, divWidth, divHeight);
+        convertTo2dArray(resultMatrix1d, divWidth, divHeight);
 
     setState(() {
       matrix2d = resultMatrix2d;
     });
 
-    print(matrix1d);
+    setState(() {
+      matrix1d = resultMatrix1d;
+    });
 
-    print(matrix2d);
+    print("1d : $matrix1d");
+
+    print("2d : $matrix2d");
+
+    print("matrix 1d length : ${matrix1d.length}");
+
+    print("matrix 2d length : ${matrix2d.length}");
+
+    print("crossAxisCount: ${_originalImage!.width ~/ pixelSize}");
+
+    print(
+        "grid builder item count : ${_originalImage!.width ~/ pixelSize * _originalImage!.height ~/ pixelSize}");
 
     final Completer<ui.Image> completer = Completer();
     ui.decodeImageFromPixels(
@@ -180,68 +194,48 @@ class _LoadImagePageState extends State<LoadImagePage> {
           const SizedBox(
             height: 20,
           ),
-          Row(
-            children: [
-              _loadedImage != null
+          (_loadedImage != null && _pixelatedImage != null)
+              ? CustomPaint(
+                  painter: PixelArtPainter(_pixelatedImage!),
+                )
+              : Container(),
+          const SizedBox(
+            height: 200,
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: _loadedImage != null
                   ? Container(
                       child: _pixelatedImage != null
-                          ? Column(
-                              children: [
-                                CustomPaint(
-                                  painter: PixelArtPainter(_pixelatedImage!),
-                                  child: Container(),
-                                ),
-                                const SizedBox(
-                                  height: 300,
-                                ),
-                                Expanded(
-                                  child: GridView.builder(
-                                    scrollDirection: Axis.vertical,
-                                    shrinkWrap: true,
-                                    gridDelegate:
-                                        const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      mainAxisSpacing: 16.0,
+                          ? GridView.builder(
+                              scrollDirection: Axis.vertical,
+                              shrinkWrap: true,
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount:
+                                          _originalImage!.width ~/ pixelSize,
                                       crossAxisSpacing: 16.0,
-                                    ),
-                                    itemBuilder: (context, index) {
-                                      return Container(
-                                        color: Colors.red,
-                                      );
-                                    },
-                                    itemCount: 300,
+                                      mainAxisSpacing: 16.0),
+                              itemBuilder: (context, index) {
+                                return GestureDetector(
+                                  onTap: () {},
+                                  child: Container(
+                                    color: matrix1d[index] == 0
+                                        ? Colors.blue
+                                        : Colors.red,
                                   ),
-                                ),
-                                // Expanded(
-                                //   child: GridView.builder(
-                                //     scrollDirection: Axis.horizontal,
-                                //     shrinkWrap: true,
-                                //     gridDelegate:
-                                //         SliverGridDelegateWithFixedCrossAxisCount(
-                                //             crossAxisCount:
-                                //                 _originalImage!.width ~/
-                                //                     pixelSize,
-                                //             crossAxisSpacing: 16.0,
-                                //             mainAxisSpacing: 16.0),
-                                //     itemBuilder: (context, index) {
-                                //       return GestureDetector(
-                                //         onTap: () {},
-                                //         child: Container(
-                                //           color: Colors.black,
-                                //         ),
-                                //       );
-                                //     },
-                                //     itemCount: _originalImage!.width ~/
-                                //         pixelSize *
-                                //         _originalImage!.height ~/
-                                //         pixelSize,
-                                //   ),
-                                // ),
-                              ],
+                                );
+                              },
+                              itemCount: _originalImage!.width ~/
+                                  pixelSize *
+                                  _originalImage!.height ~/
+                                  pixelSize,
                             )
+
+
                           : Image.network(_loadedImage!.path))
                   : const Text('No image loaded'),
-            ],
+            ),
           ),
         ],
       ),
