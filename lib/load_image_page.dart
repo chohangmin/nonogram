@@ -115,12 +115,18 @@ class _LoadImagePageState extends State<LoadImagePage> {
 
     print("matrix 1d length : ${matrix1d.length}");
 
-    print("matrix 2d length : ${matrix2d.length}");
+    print("matrix 2d length row? : ${matrix2d.length}");
 
-    print("crossAxisCount: ${_originalImage!.width ~/ pixelSize}");
+    print("matrix 2d length column? : ${matrix2d[0].length}");
 
     print(
-        "grid builder item count : ${_originalImage!.width ~/ pixelSize * _originalImage!.height ~/ pixelSize}");
+        "crossAxisCount (_originalImage!.width ~/ pixelSize): ${_originalImage!.width ~/ pixelSize}");
+
+    print(
+        "_originalImage!.height ~/ pixelSize: ${_originalImage!.height ~/ pixelSize}");
+
+    print(
+        "grid builder item count : ${(_originalImage!.width ~/ pixelSize) * (_originalImage!.height ~/ pixelSize)}");
 
     final Completer<ui.Image> completer = Completer();
     ui.decodeImageFromPixels(
@@ -217,10 +223,8 @@ class _LoadImagePageState extends State<LoadImagePage> {
                                   ),
                                 );
                               },
-                              itemCount: _originalImage!.width ~/
-                                  pixelSize *
-                                  _originalImage!.height ~/
-                                  pixelSize,
+                              itemCount: (_originalImage!.width ~/ pixelSize) *
+                                  (_originalImage!.height ~/ pixelSize),
                             )
                           : Image.network(_loadedImage!.path))
                   : const Text('No image loaded'),
