@@ -19,6 +19,8 @@ class _LoadImagePageState extends State<LoadImagePage> {
   List<List<int>> matrix2d = [];
   int pixelSize = 10;
 
+  List<int> userMatrix = [];
+
   ui.Image? _originalImage;
 
   Future<ui.Image> _decodeImage(Uint8List imageData) async {
@@ -107,6 +109,7 @@ class _LoadImagePageState extends State<LoadImagePage> {
 
     setState(() {
       matrix1d = resultMatrix1d;
+      userMatrix = List.filled(resultMatrix1d.length, 0);
     });
 
     print("1d : $matrix1d");
@@ -118,6 +121,16 @@ class _LoadImagePageState extends State<LoadImagePage> {
     print("matrix 2d length row? : ${matrix2d.length}");
 
     print("matrix 2d length column? : ${matrix2d[0].length}");
+
+    List<List<int>> rowNums =
+        returnMatrixNums(matrix2d, matrix2d.length, matrix2d[0].length, "row")!;
+
+    print("row Nums $rowNums");
+
+    List<List<int>> colNums =
+        returnMatrixNums(matrix2d, matrix2d.length, matrix2d[0].length, "col")!;
+
+    print("row Nums $colNums");
 
     print(
         "crossAxisCount (_originalImage!.width ~/ pixelSize): ${_originalImage!.width ~/ pixelSize}");
@@ -143,94 +156,181 @@ class _LoadImagePageState extends State<LoadImagePage> {
     return result;
   }
 
+  List<List<int>>? returnMatrixNums(
+      List<List<int>> array2d, int row, int col, String type) {
+    int compareNum = 0;
+    int count = 0;
+    List<List<int>> resultArray = [];
+
+    if (type == "row") {
+      for (int i = 0; i < row; i++) {
+        List<int> appendList = [];
+        for (int j = 0; j < col; j++) {
+          // List<int> appendList = [];
+
+          if (array2d[i][j] == 1) {
+            // print("check type 1");
+            count++;
+            compareNum = array2d[i][j];
+          } else if (array2d[i][j] == 0 && compareNum == 0) {
+            // print("check type 2");
+            continue;
+          } else if (array2d[i][j] == 0 && compareNum == 1) {
+            // print("check type 3");
+            appendList.add(count);
+            compareNum = 0;
+            count = 0;
+
+            continue;
+          }
+        }
+        if (count != 0) {
+          appendList.add(count);
+          compareNum = 0;
+          count = 0;
+        }
+
+        // print(appendList);
+        resultArray.add(List.from(appendList));
+
+        appendList.clear();
+      }
+
+      return resultArray;
+    } else if (type == "col") {
+      for (int i = 0; i < col; i++) {
+        List<int> appendList = [];
+        for (int j = 0; j < row; j++) {
+          // List<int> appendList = [];
+
+          int tmp = row;
+
+          if (array2d[tmp - j][i] == 1) {
+            count++;
+            compareNum == array2d[tmp - j][i];
+          } else if (array2d[tmp - j][i] == 0 && compareNum == 0) {
+            continue;
+          } else if (array2d[tmp - j][i] == 0 && compareNum == 1) {
+            appendList.add(count);
+            compareNum = 0;
+            count = 0;
+
+            continue;
+          }
+        }
+        if (count != 0) {
+          appendList.add(count);
+          compareNum = 0;
+          count = 0;
+        }
+
+        resultArray.add(appendList);
+        appendList.clear();
+      }
+
+      return resultArray;
+    } else {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pixel Art Convert'),
       ),
-      body: Column(
-        children: [
-          Row(
-            children: [
-              ElevatedButton(
-                onPressed: () async {
-                  final ImagePicker picker = ImagePicker();
-                  final XFile? image =
-                      await picker.pickImage(source: ImageSource.gallery);
-
-                  setState(() {
-                    _loadedImage = image;
-                  });
-                },
-                child: const Text('Load Imgae'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  if (_loadedImage != null) {
-                    final Uint8List imageData =
-                        await _loadedImage!.readAsBytes();
-                    final ui.Image originalImage =
-                        await _decodeImage(imageData);
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    final ImagePicker picker = ImagePicker();
+                    final XFile? image =
+                        await picker.pickImage(source: ImageSource.gallery);
 
                     setState(() {
-                      _originalImage = originalImage;
+                      _loadedImage = image;
                     });
+                  },
+                  child: const Text('Load Imgae'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_loadedImage != null) {
+                      final Uint8List imageData =
+                          await _loadedImage!.readAsBytes();
+                      final ui.Image originalImage =
+                          await _decodeImage(imageData);
 
-                    final ui.Image pixelArtImage =
-                        await _convertToPixelArt(originalImage, pixelSize);
-                    setState(() {
-                      _pixelatedImage = pixelArtImage;
-                    });
-                  }
-                },
-                child: const Text('Convert Imgae to Pixel'),
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          (_loadedImage != null && _pixelatedImage != null)
-              ? CustomPaint(
-                  painter: PixelArtPainter(_pixelatedImage!),
-                )
-              : Container(),
-          const SizedBox(
-            height: 200,
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: _loadedImage != null
-                  ? Container(
-                      child: _pixelatedImage != null
-                          ? GridView.builder(
-                              scrollDirection: Axis.vertical,
-                              shrinkWrap: true,
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount:
-                                          _originalImage!.width ~/ pixelSize,
-                                      crossAxisSpacing: 16.0,
-                                      mainAxisSpacing: 16.0),
-                              itemBuilder: (context, index) {
-                                return GestureDetector(
-                                  onTap: () {},
-                                  child: Container(
-                                    color: matrix1d[index] == 0
-                                        ? Colors.blue
-                                        : Colors.red,
-                                  ),
-                                );
-                              },
-                              itemCount: (_originalImage!.width ~/ pixelSize) *
-                                  (_originalImage!.height ~/ pixelSize),
-                            )
-                          : Image.network(_loadedImage!.path))
-                  : const Text('No image loaded'),
+                      setState(() {
+                        _originalImage = originalImage;
+                      });
+
+                      final ui.Image pixelArtImage =
+                          await _convertToPixelArt(originalImage, pixelSize);
+                      setState(() {
+                        _pixelatedImage = pixelArtImage;
+                      });
+                    }
+                  },
+                  child: const Text('Convert Imgae to Pixel'),
+                ),
+              ],
             ),
-          ),
-        ],
+            const SizedBox(
+              height: 20,
+            ),
+            (_loadedImage != null && _pixelatedImage != null)
+                ? CustomPaint(
+                    painter: PixelArtPainter(_pixelatedImage!),
+                  )
+                : Container(),
+            const SizedBox(
+              height: 200,
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: _loadedImage != null
+                    ? Container(
+                        child: _pixelatedImage != null
+                            ? GridView.builder(
+                                scrollDirection: Axis.vertical,
+                                shrinkWrap: true,
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount:
+                                            _originalImage!.width ~/ pixelSize,
+                                        crossAxisSpacing: 16.0,
+                                        mainAxisSpacing: 16.0),
+                                itemBuilder: (context, index) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      matrix1d[index] == 0
+                                          ? matrix1d[index] = 1
+                                          : matrix1d[index] = 0;
+                                      setState(() {});
+                                    },
+                                    child: Container(
+                                      color: matrix1d[index] == 0
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
+                                  );
+                                },
+                                itemCount:
+                                    (_originalImage!.width ~/ pixelSize) *
+                                        (_originalImage!.height ~/ pixelSize),
+                              )
+                            : Image.network(_loadedImage!.path))
+                    : const Text('No image loaded'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
