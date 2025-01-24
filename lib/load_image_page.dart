@@ -205,12 +205,12 @@ class _LoadImagePageState extends State<LoadImagePage> {
 
           int tmp = row;
 
-          if (array2d[tmp - j][i] == 1) {
+          if (array2d[tmp - j - 1][i] == 1) {
             count++;
-            compareNum == array2d[tmp - j][i];
-          } else if (array2d[tmp - j][i] == 0 && compareNum == 0) {
+            compareNum = array2d[tmp - j - 1][i];
+          } else if (array2d[tmp - j - 1][i] == 0 && compareNum == 0) {
             continue;
-          } else if (array2d[tmp - j][i] == 0 && compareNum == 1) {
+          } else if (array2d[tmp - j - 1][i] == 0 && compareNum == 1) {
             appendList.add(count);
             compareNum = 0;
             count = 0;
@@ -224,7 +224,7 @@ class _LoadImagePageState extends State<LoadImagePage> {
           count = 0;
         }
 
-        resultArray.add(appendList);
+        resultArray.add(List.from(appendList));
         appendList.clear();
       }
 
@@ -302,23 +302,28 @@ class _LoadImagePageState extends State<LoadImagePage> {
                                 shrinkWrap: true,
                                 gridDelegate:
                                     SliverGridDelegateWithFixedCrossAxisCount(
+                                        childAspectRatio: 1,
                                         crossAxisCount:
                                             _originalImage!.width ~/ pixelSize,
-                                        crossAxisSpacing: 16.0,
-                                        mainAxisSpacing: 16.0),
+                                        crossAxisSpacing: 1.0,
+                                        mainAxisSpacing: 1.0),
                                 itemBuilder: (context, index) {
                                   return GestureDetector(
-                                    onTap: () {
-                                      matrix1d[index] == 0
-                                          ? matrix1d[index] = 1
-                                          : matrix1d[index] = 0;
-                                      setState(() {});
-                                    },
-                                    child: Container(
-                                      color: matrix1d[index] == 0
-                                          ? Colors.white
-                                          : Colors.black,
-                                    ),
+                                    // onTap: () {
+                                    //   matrix1d[index] == 0
+                                    //       ? matrix1d[index] = 1
+                                    //       : matrix1d[index] = 0;
+                                    //   setState(() {});
+                                    // },
+                                    // Container(
+                                    //   color: matrix1d[index] == 0
+                                    //       ? Colors.white
+                                    //       : Colors.black,
+                                    // ),
+                                    child: if (index == 0) 
+                                      return Container();
+                                     else if () 
+                                    else ,
                                   );
                                 },
                                 itemCount:
