@@ -19,6 +19,8 @@ class _LoadImagePageState extends State<LoadImagePage> {
   List<List<int>> matrix2d = [];
   int pixelSize = 10;
 
+  List<List<int>> colCountNums = [];
+  List<List<int>> rowCountNums = [];
   List<int> userMatrix = [];
 
   ui.Image? _originalImage;
@@ -130,7 +132,12 @@ class _LoadImagePageState extends State<LoadImagePage> {
     List<List<int>> colNums =
         returnMatrixNums(matrix2d, matrix2d.length, matrix2d[0].length, "col")!;
 
-    print("row Nums $colNums");
+    print("col Nums $colNums");
+
+    setState(() {
+      colCountNums = colNums;
+      rowCountNums = rowNums;
+    });
 
     print(
         "crossAxisCount (_originalImage!.width ~/ pixelSize): ${_originalImage!.width ~/ pixelSize}");
@@ -205,12 +212,12 @@ class _LoadImagePageState extends State<LoadImagePage> {
 
           int tmp = row;
 
-          if (array2d[tmp - j - 1][i] == 1) {
+          if (array2d[j][i] == 1) {
             count++;
-            compareNum = array2d[tmp - j - 1][i];
-          } else if (array2d[tmp - j - 1][i] == 0 && compareNum == 0) {
+            compareNum = array2d[j][i];
+          } else if (array2d[j][i] == 0 && compareNum == 0) {
             continue;
-          } else if (array2d[tmp - j - 1][i] == 0 && compareNum == 1) {
+          } else if (array2d[j][i] == 0 && compareNum == 1) {
             appendList.add(count);
             compareNum = 0;
             count = 0;
@@ -297,39 +304,77 @@ class _LoadImagePageState extends State<LoadImagePage> {
                 child: _loadedImage != null
                     ? Container(
                         child: _pixelatedImage != null
-                            ? GridView.builder(
-                                scrollDirection: Axis.vertical,
-                                shrinkWrap: true,
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                        childAspectRatio: 1,
-                                        crossAxisCount:
-                                            _originalImage!.width ~/ pixelSize,
-                                        crossAxisSpacing: 1.0,
-                                        mainAxisSpacing: 1.0),
-                                itemBuilder: (context, index) {
-                                  return GestureDetector(
-                                    // onTap: () {
-                                    //   matrix1d[index] == 0
-                                    //       ? matrix1d[index] = 1
-                                    //       : matrix1d[index] = 0;
-                                    //   setState(() {});
-                                    // },
-                                    // Container(
-                                    //   color: matrix1d[index] == 0
-                                    //       ? Colors.white
-                                    //       : Colors.black,
-                                    // ),
-                                    child: if (index == 0) 
-                                      return Container();
-                                     else if () 
-                                    else ,
-                                  );
-                                },
-                                itemCount:
-                                    (_originalImage!.width ~/ pixelSize) *
-                                        (_originalImage!.height ~/ pixelSize),
-                              )
+                            ? Column(children: [
+                                Text(colCountNums.toString()),
+                                SizedBox(
+                                  height: 30,
+                                  child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      shrinkWrap: true,
+                                      itemCount: 10,
+                                      itemBuilder: (context, index) {
+                                        return Container(
+                                          margin: const EdgeInsets.all(5),
+                                          height: 30,
+                                          width: 30,
+                                          color: Colors.red,
+                                        );
+                                      }),
+                                ),
+                                Row(
+                                  children: [
+                                    Text(rowCountNums.toString()),
+                                    SizedBox(
+                                      width: 30,
+                                      child: ListView.builder(
+                                          scrollDirection: Axis.vertical,
+                                          shrinkWrap: true,
+                                          itemCount: 10,
+                                          itemBuilder: (context, index) {
+                                            return Container(
+                                              margin: const EdgeInsets.all(5),
+                                              height: 30,
+                                              width: 30,
+                                              color: Colors.red,
+                                            );
+                                          }),
+                                    ),
+                                    Expanded(
+                                      child: GridView.builder(
+                                        scrollDirection: Axis.vertical,
+                                        shrinkWrap: true,
+                                        gridDelegate:
+                                            SliverGridDelegateWithFixedCrossAxisCount(
+                                                childAspectRatio: 1,
+                                                crossAxisCount:
+                                                    _originalImage!.width ~/
+                                                        pixelSize,
+                                                crossAxisSpacing: 1.0,
+                                                mainAxisSpacing: 1.0),
+                                        itemBuilder: (context, index) {
+                                          return GestureDetector(
+                                            onTap: () {
+                                              matrix1d[index] == 0
+                                                  ? matrix1d[index] = 1
+                                                  : matrix1d[index] = 0;
+                                              setState(() {});
+                                            },
+                                            child: Container(
+                                              color: matrix1d[index] == 0
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                            ),
+                                          );
+                                        },
+                                        itemCount: (_originalImage!.width ~/
+                                                pixelSize) *
+                                            (_originalImage!.height ~/
+                                                pixelSize),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              ])
                             : Image.network(_loadedImage!.path))
                     : const Text('No image loaded'),
               ),
