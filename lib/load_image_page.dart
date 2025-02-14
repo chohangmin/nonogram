@@ -314,10 +314,8 @@ class _LoadImagePageState extends State<LoadImagePage> {
                                       itemCount: 10,
                                       itemBuilder: (context, index) {
                                         return Container(
-                                          margin: const EdgeInsets.all(5),
-                                          height: 30,
-                                          width: 30,
-                                          color: Colors.red,
+                                          child: Text(
+                                              colCountNums[index].toString()),
                                         );
                                       }),
                                 ),
