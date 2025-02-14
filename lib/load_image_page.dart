@@ -21,7 +21,8 @@ class _LoadImagePageState extends State<LoadImagePage> {
 
   List<List<int>> colCountNums = [];
   List<List<int>> rowCountNums = [];
-  List<int> userMatrix = [];
+
+  List<int> userMatrix1d = [];
 
   ui.Image? _originalImage;
 
@@ -111,7 +112,7 @@ class _LoadImagePageState extends State<LoadImagePage> {
 
     setState(() {
       matrix1d = resultMatrix1d;
-      userMatrix = List.filled(resultMatrix1d.length, 0);
+      userMatrix1d = List.filled(resultMatrix1d.length, 0);
     });
 
     print("1d : $matrix1d");
@@ -299,45 +300,105 @@ class _LoadImagePageState extends State<LoadImagePage> {
             const SizedBox(
               height: 200,
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: _loadedImage != null
-                    ? Container(
-                        child: _pixelatedImage != null
-                            ? Column(children: [
-                                Text(colCountNums.toString()),
-                                SizedBox(
-                                  height: 30,
-                                  child: ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      shrinkWrap: true,
-                                      itemCount: 10,
-                                      itemBuilder: (context, index) {
-                                        return Container(
-                                          child: Text(
-                                              colCountNums[index].toString()),
-                                        );
-                                      }),
-                                ),
+            _loadedImage != null
+                ? Center(
+                    child: Container(
+                      child: _pixelatedImage != null
+                          ? Column(
+                              children: [
+                                Text(
+                                    "${colCountNums.length} X ${rowCountNums.length}"),
                                 Row(
                                   children: [
-                                    Text(rowCountNums.toString()),
+                                    const SizedBox(
+                                      height: 70,
+                                      width: 70,
+                                    ),
                                     SizedBox(
-                                      width: 30,
+                                      height: 70,
                                       child: ListView.builder(
-                                          scrollDirection: Axis.vertical,
+                                          scrollDirection: Axis.horizontal,
                                           shrinkWrap: true,
-                                          itemCount: 10,
+                                          itemCount: colCountNums.length,
                                           itemBuilder: (context, index) {
+                                            List<int> temp =
+                                                colCountNums[index];
+                                            int tempListLength = temp.length;
+                                            String tempString = "";
+                                            for (int i = 0;
+                                                i < tempListLength;
+                                                i++) {
+                                              tempString += temp[i].toString();
+                                              tempString += "\n";
+                                            }
+
+                                            print(tempString);
+
                                             return Container(
-                                              margin: const EdgeInsets.all(5),
-                                              height: 30,
-                                              width: 30,
-                                              color: Colors.red,
+                                              alignment: Alignment.center,
+                                              height: 70,
+                                              width: 70,
+                                              decoration: BoxDecoration(
+                                                color: Colors.blue,
+                                                border: Border.all(
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                              child: Text(
+                                                tempString,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
                                             );
                                           }),
                                     ),
-                                    Expanded(
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 70,
+                                      child: ListView.builder(
+                                          scrollDirection: Axis.vertical,
+                                          shrinkWrap: true,
+                                          itemCount: rowCountNums.length,
+                                          itemBuilder: (context, index) {
+                                            List<int> temp =
+                                                rowCountNums[index];
+                                            int tempListLength = temp.length;
+                                            String tempString = "";
+                                            for (int i = 0;
+                                                i < tempListLength;
+                                                i++) {
+                                              tempString += temp[i].toString();
+                                              tempString += " ";
+                                            }
+
+                                            print(tempString);
+
+                                            return Container(
+                                              alignment: Alignment.center,
+                                              height: 70,
+                                              width: 70,
+                                              decoration: BoxDecoration(
+                                                color: Colors.blue,
+                                                border: Border.all(
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                              child: Text(
+                                                tempString,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            );
+                                          }),
+                                    ),
+                                    SizedBox(
+                                      height: rowCountNums.length * 70,
+                                      width: colCountNums.length * 70,
                                       child: GridView.builder(
                                         scrollDirection: Axis.vertical,
                                         shrinkWrap: true,
@@ -351,16 +412,28 @@ class _LoadImagePageState extends State<LoadImagePage> {
                                                 mainAxisSpacing: 1.0),
                                         itemBuilder: (context, index) {
                                           return GestureDetector(
+
+                                            
+                                            
                                             onTap: () {
-                                              matrix1d[index] == 0
-                                                  ? matrix1d[index] = 1
-                                                  : matrix1d[index] = 0;
+                                             
+                                             
+
+                                              
+                                              userMatrix1d[index] == 0
+                                                  ? userMatrix1d[index] = 1
+                                                  : userMatrix1d[index] = 0;
                                               setState(() {});
                                             },
                                             child: Container(
-                                              color: matrix1d[index] == 0
-                                                  ? Colors.white
-                                                  : Colors.black,
+                                              decoration: BoxDecoration(
+                                                color: userMatrix1d[index] == 0
+                                                    ? Colors.white
+                                                    : Colors.black,
+                                                border: Border.all(
+                                                  color: Colors.black,
+                                                ),
+                                              ),
                                             ),
                                           );
                                         },
@@ -372,11 +445,12 @@ class _LoadImagePageState extends State<LoadImagePage> {
                                     ),
                                   ],
                                 )
-                              ])
-                            : Image.network(_loadedImage!.path))
-                    : const Text('No image loaded'),
-              ),
-            ),
+                              ],
+                            )
+                          : Image.network(_loadedImage!.path),
+                    ),
+                  )
+                : const Text('No image loaded'),
           ],
         ),
       ),
