@@ -412,24 +412,57 @@ class _LoadImagePageState extends State<LoadImagePage> {
                                                 mainAxisSpacing: 1.0),
                                         itemBuilder: (context, index) {
                                           return GestureDetector(
-
-                                            
-                                            
                                             onTap: () {
-                                             
-                                             
-
-                                              
-                                              userMatrix1d[index] == 0
-                                                  ? userMatrix1d[index] = 1
-                                                  : userMatrix1d[index] = 0;
-                                              setState(() {});
+                                              if (matrix1d[index] == 1) {
+                                                if (userMatrix1d[index] ==
+                                                    matrix1d[index]) {
+                                                  userMatrix1d[index] == 0
+                                                      ? userMatrix1d[index] = 1
+                                                      : userMatrix1d[index] = 0;
+                                                  setState(() {});
+                                                }
+                                              } else if (userMatrix1d[index] ==
+                                                  matrix1d[index]) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                        const SnackBar(
+                                                  content: Text(
+                                                    "Click Wrong!!!!",
+                                                    style: TextStyle(
+                                                      color: Colors.red,
+                                                    ),
+                                                  ),
+                                                  duration:
+                                                      Duration(seconds: 2),
+                                                ));
+                                              }
+                                            },
+                                            onDoubleTap: () {
+                                              if (matrix1d[index] == 0) {
+                                                userMatrix1d[index] = 2;
+                                                setState(() {});
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                        const SnackBar(
+                                                  content: Text(
+                                                    "Grey Wrong!!!!",
+                                                    style: TextStyle(
+                                                      color: Colors.red,
+                                                    ),
+                                                  ),
+                                                  duration:
+                                                      Duration(seconds: 2),
+                                                ));
+                                              }
                                             },
                                             child: Container(
                                               decoration: BoxDecoration(
                                                 color: userMatrix1d[index] == 0
                                                     ? Colors.white
-                                                    : Colors.black,
+                                                    : (userMatrix1d[index] == 1)
+                                                        ? Colors.black
+                                                        : Colors.grey,
                                                 border: Border.all(
                                                   color: Colors.black,
                                                 ),
