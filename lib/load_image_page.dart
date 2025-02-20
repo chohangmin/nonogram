@@ -250,241 +250,290 @@ class _LoadImagePageState extends State<LoadImagePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () async {
-                    final ImagePicker picker = ImagePicker();
-                    final XFile? image =
-                        await picker.pickImage(source: ImageSource.gallery);
-
-                    setState(() {
-                      _loadedImage = image;
-                    });
-                  },
-                  child: const Text('Load Imgae'),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (_loadedImage != null) {
-                      final Uint8List imageData =
-                          await _loadedImage!.readAsBytes();
-                      final ui.Image originalImage =
-                          await _decodeImage(imageData);
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      final ImagePicker picker = ImagePicker();
+                      final XFile? image =
+                          await picker.pickImage(source: ImageSource.gallery);
 
                       setState(() {
-                        _originalImage = originalImage;
+                        _loadedImage = image;
                       });
+                    },
+                    child: const Text('Load Imgae'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (_loadedImage != null) {
+                        final Uint8List imageData =
+                            await _loadedImage!.readAsBytes();
+                        final ui.Image originalImage =
+                            await _decodeImage(imageData);
 
-                      final ui.Image pixelArtImage =
-                          await _convertToPixelArt(originalImage, pixelSize);
-                      setState(() {
-                        _pixelatedImage = pixelArtImage;
-                      });
-                    }
-                  },
-                  child: const Text('Convert Imgae to Pixel'),
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            (_loadedImage != null && _pixelatedImage != null)
-                ? CustomPaint(
-                    painter: PixelArtPainter(_pixelatedImage!),
-                  )
-                : Container(),
-            const SizedBox(
-              height: 200,
-            ),
-            _loadedImage != null
-                ? Center(
-                    child: Container(
+                        setState(() {
+                          _originalImage = originalImage;
+                        });
+
+                        final ui.Image pixelArtImage =
+                            await _convertToPixelArt(originalImage, pixelSize);
+                        setState(() {
+                          _pixelatedImage = pixelArtImage;
+                        });
+                      }
+                    },
+                    child: const Text('Convert Imgae to Pixel'),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              (_loadedImage != null && _pixelatedImage != null)
+                  ? CustomPaint(
+                      painter: PixelArtPainter(_pixelatedImage!),
+                    )
+                  : Container(),
+              const SizedBox(
+                height: 200,
+              ),
+              _loadedImage != null
+                  ? Container(
                       child: _pixelatedImage != null
-                          ? Column(
-                              children: [
-                                Text(
-                                    "${colCountNums.length} X ${rowCountNums.length}"),
-                                Row(
-                                  children: [
-                                    const SizedBox(
-                                      height: 70,
-                                      width: 70,
-                                    ),
-                                    SizedBox(
-                                      height: 70,
-                                      child: ListView.builder(
-                                          scrollDirection: Axis.horizontal,
-                                          shrinkWrap: true,
-                                          itemCount: colCountNums.length,
-                                          itemBuilder: (context, index) {
-                                            List<int> temp =
-                                                colCountNums[index];
-                                            int tempListLength = temp.length;
-                                            String tempString = "";
-                                            for (int i = 0;
-                                                i < tempListLength;
-                                                i++) {
-                                              tempString += temp[i].toString();
-                                              tempString += "\n";
-                                            }
+                          ? Center(
+                              child: Column(
+                                children: [
+                                  Text(
+                                      "${colCountNums.length} X ${rowCountNums.length}"),
+                                  Row(
+                                    children: [
+                                      const SizedBox(
+                                        height: 70,
+                                        width: 70,
+                                      ),
+                                      SizedBox(
+                                        height: 70,
+                                        child: ListView.builder(
+                                            scrollDirection: Axis.horizontal,
+                                            shrinkWrap: true,
+                                            itemCount: colCountNums.length,
+                                            itemBuilder: (context, index) {
+                                              List<int> temp =
+                                                  colCountNums[index];
+                                              int tempListLength = temp.length;
+                                              String tempString = "";
+                                              for (int i = 0;
+                                                  i < tempListLength;
+                                                  i++) {
+                                                tempString +=
+                                                    temp[i].toString();
+                                                tempString += "\n";
+                                              }
 
-                                            print(tempString);
+                                              print(tempString);
 
-                                            return Container(
-                                              alignment: Alignment.center,
-                                              height: 70,
-                                              width: 70,
-                                              decoration: BoxDecoration(
-                                                color: Colors.blue,
-                                                border: Border.all(
-                                                  color: Colors.black,
+                                              return Container(
+                                                alignment: Alignment.center,
+                                                height: 70,
+                                                width: 70,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.blue,
+                                                  border: Border.all(
+                                                    color: Colors.black,
+                                                  ),
                                                 ),
-                                              ),
-                                              child: Text(
-                                                tempString,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
+                                                child: Text(
+                                                  tempString,
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
-                                              ),
-                                            );
-                                          }),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 70,
-                                      child: ListView.builder(
+                                              );
+                                            }),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 70,
+                                        child: ListView.builder(
+                                            scrollDirection: Axis.vertical,
+                                            shrinkWrap: true,
+                                            itemCount: rowCountNums.length,
+                                            itemBuilder: (context, index) {
+                                              List<int> temp =
+                                                  rowCountNums[index];
+                                              int tempListLength = temp.length;
+                                              String tempString = "";
+                                              for (int i = 0;
+                                                  i < tempListLength;
+                                                  i++) {
+                                                tempString +=
+                                                    temp[i].toString();
+                                                tempString += " ";
+                                              }
+
+                                              print(tempString);
+
+                                              return Container(
+                                                alignment: Alignment.center,
+                                                height: 70,
+                                                width: 70,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.blue,
+                                                  border: Border.all(
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                                child: Text(
+                                                  tempString,
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              );
+                                            }),
+                                      ),
+                                      SizedBox(
+                                        height: rowCountNums.length * 70,
+                                        width: colCountNums.length * 70,
+                                        child: GridView.builder(
                                           scrollDirection: Axis.vertical,
                                           shrinkWrap: true,
-                                          itemCount: rowCountNums.length,
+                                          gridDelegate:
+                                              SliverGridDelegateWithFixedCrossAxisCount(
+                                                  childAspectRatio: 1,
+                                                  crossAxisCount:
+                                                      _originalImage!.width ~/
+                                                          pixelSize,
+                                                  crossAxisSpacing: 1.0,
+                                                  mainAxisSpacing: 1.0),
                                           itemBuilder: (context, index) {
-                                            List<int> temp =
-                                                rowCountNums[index];
-                                            int tempListLength = temp.length;
-                                            String tempString = "";
-                                            for (int i = 0;
-                                                i < tempListLength;
-                                                i++) {
-                                              tempString += temp[i].toString();
-                                              tempString += " ";
-                                            }
+                                            return GestureDetector(
+                                              onTap: () {
+                                                if (userMatrix1d[index] == 0) {
+                                                  if (matrix1d[index] == 1) {
+                                                    userMatrix1d[index] = 1;
+                                                    setState(() {});
+                                                  } else {
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                            const SnackBar(
+                                                      content: Text(
+                                                        "Click Wrong!!!!",
+                                                        style: TextStyle(
+                                                          color: Colors.red,
+                                                        ),
+                                                      ),
+                                                      duration:
+                                                          Duration(seconds: 2),
+                                                    ));
+                                                  }
+                                                }
 
-                                            print(tempString);
+                                                // if (matrix1d[index] == 1) {
+                                                //   if (userMatrix1d[index] ==
+                                                //       matrix1d[index]) {
+                                                //     userMatrix1d[index] == 0
+                                                //         ? userMatrix1d[index] =
+                                                //             1
+                                                //         : userMatrix1d[index] =
+                                                //             0;
+                                                //     setState(() {});
+                                                //   }
+                                                // } else if (userMatrix1d[
+                                                //         index] ==
+                                                //     matrix1d[index]) {
+                                                //   ScaffoldMessenger.of(context)
+                                                //       .showSnackBar(
+                                                //           const SnackBar(
+                                                //     content: Text(
+                                                //       "Click Wrong!!!!",
+                                                //       style: TextStyle(
+                                                //         color: Colors.red,
+                                                //       ),
+                                                //     ),
+                                                //     duration:
+                                                //         Duration(seconds: 2),
+                                                //   ));
+                                                // }
+                                              },
+                                              onDoubleTap: () {
+                                                if (userMatrix1d[index] == 0) {
+                                                  if (matrix1d[index] == 0) {
+                                                    userMatrix1d[index] = 2;
+                                                    setState(() {});
+                                                  } else {
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                            const SnackBar(
+                                                      content: Text(
+                                                        "Grey Wrong!!!!",
+                                                        style: TextStyle(
+                                                          color: Colors.red,
+                                                        ),
+                                                      ),
+                                                    ));
+                                                  }
+                                                }
 
-                                            return Container(
-                                              alignment: Alignment.center,
-                                              height: 70,
-                                              width: 70,
-                                              decoration: BoxDecoration(
-                                                color: Colors.blue,
-                                                border: Border.all(
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                              child: Text(
-                                                tempString,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
+                                                // if (matrix1d[index] == 0) {
+                                                //   userMatrix1d[index] = 2;
+                                                //   setState(() {});
+                                                // } else {
+                                                //   ScaffoldMessenger.of(context)
+                                                //       .showSnackBar(
+                                                //           const SnackBar(
+                                                //     content: Text(
+                                                //       "Grey Wrong!!!!",
+                                                //       style: TextStyle(
+                                                //         color: Colors.red,
+                                                //       ),       
+                                                //     ),
+                                                //     duration:
+                                                //         Duration(seconds: 2),
+                                                //   ));
+                                                // }
+                                              },
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: userMatrix1d[index] ==
+                                                          0
+                                                      ? Colors.white
+                                                      : (userMatrix1d[index] ==
+                                                              1)
+                                                          ? Colors.black
+                                                          : Colors.red,
+                                                  border: Border.all(
+                                                    color: Colors.black,
+                                                  ),
                                                 ),
                                               ),
                                             );
-                                          }),
-                                    ),
-                                    SizedBox(
-                                      height: rowCountNums.length * 70,
-                                      width: colCountNums.length * 70,
-                                      child: GridView.builder(
-                                        scrollDirection: Axis.vertical,
-                                        shrinkWrap: true,
-                                        gridDelegate:
-                                            SliverGridDelegateWithFixedCrossAxisCount(
-                                                childAspectRatio: 1,
-                                                crossAxisCount:
-                                                    _originalImage!.width ~/
-                                                        pixelSize,
-                                                crossAxisSpacing: 1.0,
-                                                mainAxisSpacing: 1.0),
-                                        itemBuilder: (context, index) {
-                                          return GestureDetector(
-                                            onTap: () {
-                                              if (matrix1d[index] == 1) {
-                                                if (userMatrix1d[index] ==
-                                                    matrix1d[index]) {
-                                                  userMatrix1d[index] == 0
-                                                      ? userMatrix1d[index] = 1
-                                                      : userMatrix1d[index] = 0;
-                                                  setState(() {});
-                                                }
-                                              } else if (userMatrix1d[index] ==
-                                                  matrix1d[index]) {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                        const SnackBar(
-                                                  content: Text(
-                                                    "Click Wrong!!!!",
-                                                    style: TextStyle(
-                                                      color: Colors.red,
-                                                    ),
-                                                  ),
-                                                  duration:
-                                                      Duration(seconds: 2),
-                                                ));
-                                              }
-                                            },
-                                            onDoubleTap: () {
-                                              if (matrix1d[index] == 0) {
-                                                userMatrix1d[index] = 2;
-                                                setState(() {});
-                                              } else {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                        const SnackBar(
-                                                  content: Text(
-                                                    "Grey Wrong!!!!",
-                                                    style: TextStyle(
-                                                      color: Colors.red,
-                                                    ),
-                                                  ),
-                                                  duration:
-                                                      Duration(seconds: 2),
-                                                ));
-                                              }
-                                            },
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: userMatrix1d[index] == 0
-                                                    ? Colors.white
-                                                    : (userMatrix1d[index] == 1)
-                                                        ? Colors.black
-                                                        : Colors.grey,
-                                                border: Border.all(
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        itemCount: (_originalImage!.width ~/
-                                                pixelSize) *
-                                            (_originalImage!.height ~/
-                                                pixelSize),
+                                          },
+                                          itemCount: (_originalImage!.width ~/
+                                                  pixelSize) *
+                                              (_originalImage!.height ~/
+                                                  pixelSize),
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                )
-                              ],
+                                    ],
+                                  )
+                                ],
+                              ),
                             )
                           : Image.network(_loadedImage!.path),
-                    ),
-                  )
-                : const Text('No image loaded'),
-          ],
+                    )
+                  : const Text('No image loaded'),
+            ],
+          ),
         ),
       ),
     );
