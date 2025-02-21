@@ -19,6 +19,11 @@ class _LoadImagePageState extends State<LoadImagePage> {
   List<List<int>> matrix2d = [];
   int pixelSize = 10;
 
+  double accumulatedDx = 0;
+
+  int startDragIndex = 0;
+  int currentDragIndex = 0;
+
   List<List<int>> colCountNums = [];
   List<List<int>> rowCountNums = [];
 
@@ -495,12 +500,86 @@ class _LoadImagePageState extends State<LoadImagePage> {
                                                 //       "Grey Wrong!!!!",
                                                 //       style: TextStyle(
                                                 //         color: Colors.red,
-                                                //       ),       
+                                                //       ),
                                                 //     ),
                                                 //     duration:
                                                 //         Duration(seconds: 2),
                                                 //   ));
                                                 // }
+                                              },
+                                              onHorizontalDragStart:
+                                                  (DragStartDetails details) {
+                                                int newRow =
+                                                    (details.globalPosition.dx /
+                                                                70)
+                                                            .floor() -
+                                                        1;
+
+                                                int newCol =
+                                                    (details.globalPosition.dy /
+                                                                70)
+                                                            .floor() -
+                                                        6;
+
+                                                startDragIndex = newCol *
+                                                        colCountNums.length +
+                                                    newRow;
+
+                                                // userMatrix1d[startDragIndex] =
+                                                //     1;
+                                              },
+                                              onHorizontalDragUpdate:
+                                                  (DragUpdateDetails details) {
+                                                int newRow =
+                                                    (details.globalPosition.dx /
+                                                                70)
+                                                            .floor() -
+                                                        1;
+
+                                                int newCol =
+                                                    (details.globalPosition.dy /
+                                                                70)
+                                                            .floor() -
+                                                        6;
+
+                                                currentDragIndex = newCol *
+                                                        colCountNums.length +
+                                                    newRow;
+
+                                                print(
+                                                    "index $startDragIndex $currentDragIndex");
+
+                                                if ((startDragIndex -
+                                                            currentDragIndex)
+                                                        .abs() >
+                                                    0) {
+                                                  userMatrix1d[
+                                                      currentDragIndex] = 1;
+                                                  setState(() {});
+                                                }
+                                                // accumulatedDx +=
+                                                //     details.delta.dx;
+
+                                                // print(
+                                                //     "accumulatedDx $accumulatedDx ${details.delta.dx}");
+
+                                                // userMatrix1d[startDragIndex +
+                                                //     (accumulatedDx / 70)
+                                                //         .floor()] = 1;
+                                                // accumulatedDx = 0;
+                                                // setState(() {});
+                                              },
+                                              onHorizontalDragEnd:
+                                                  (DragEndDetails details) {
+                                                accumulatedDx = 0;
+                                                // int moveIndex =
+                                                //     (accumulatedDx / 70)
+                                                //         .floor();
+
+                                                // accumulatedDx = 0;
+
+                                                // print(
+                                                //     "end $startDragIndex $moveIndex ${startDragIndex + moveIndex}");
                                               },
                                               child: Container(
                                                 decoration: BoxDecoration(
