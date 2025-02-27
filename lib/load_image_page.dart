@@ -19,7 +19,11 @@ class _LoadImagePageState extends State<LoadImagePage> {
   List<List<int>> matrix2d = [];
   int pixelSize = 10;
 
+  double pixelLength = 40;
+  double pixelNumSize = 10;
+
   double accumulatedDx = 0;
+  double accumulatedDy = 0;
 
   int startDragIndex = 0;
   int currentDragIndex = 0;
@@ -30,6 +34,21 @@ class _LoadImagePageState extends State<LoadImagePage> {
   List<int> userMatrix1d = [];
 
   ui.Image? _originalImage;
+
+  bool _checkAllIndex() {
+    for (int i = 0; i < matrix1d.length; i++) {
+      if (userMatrix1d[i] == matrix1d[i]) {
+        continue;
+      } else if (userMatrix1d[i] == 2) {
+        if (matrix1d[i] == 0) {
+          continue;
+        }
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
 
   Future<ui.Image> _decodeImage(Uint8List imageData) async {
     final Completer<ui.Image> completer = Completer();
@@ -293,6 +312,17 @@ class _LoadImagePageState extends State<LoadImagePage> {
                     },
                     child: const Text('Convert Imgae to Pixel'),
                   ),
+                  ElevatedButton(
+                      onPressed: () {
+                        if (_checkAllIndex()) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Correct!")));
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Wrong!")));
+                        }
+                      },
+                      child: const Text("Check the answer.")),
                 ],
               ),
               const SizedBox(
@@ -303,9 +333,9 @@ class _LoadImagePageState extends State<LoadImagePage> {
                       painter: PixelArtPainter(_pixelatedImage!),
                     )
                   : Container(),
-              const SizedBox(
-                height: 200,
-              ),
+              // const SizedBox(
+              //   height: 200,
+              // ),
               _loadedImage != null
                   ? Container(
                       child: _pixelatedImage != null
@@ -316,12 +346,12 @@ class _LoadImagePageState extends State<LoadImagePage> {
                                       "${colCountNums.length} X ${rowCountNums.length}"),
                                   Row(
                                     children: [
-                                      const SizedBox(
-                                        height: 70,
-                                        width: 70,
+                                      SizedBox(
+                                        height: pixelLength,
+                                        width: pixelLength,
                                       ),
                                       SizedBox(
-                                        height: 70,
+                                        height: pixelLength,
                                         child: ListView.builder(
                                             scrollDirection: Axis.horizontal,
                                             shrinkWrap: true,
@@ -343,8 +373,8 @@ class _LoadImagePageState extends State<LoadImagePage> {
 
                                               return Container(
                                                 alignment: Alignment.center,
-                                                height: 70,
-                                                width: 70,
+                                                height: pixelLength,
+                                                width: pixelLength,
                                                 decoration: BoxDecoration(
                                                   color: Colors.blue,
                                                   border: Border.all(
@@ -353,8 +383,9 @@ class _LoadImagePageState extends State<LoadImagePage> {
                                                 ),
                                                 child: Text(
                                                   tempString,
-                                                  style: const TextStyle(
+                                                  style: TextStyle(
                                                     fontWeight: FontWeight.bold,
+                                                    fontSize: pixelNumSize,
                                                   ),
                                                 ),
                                               );
@@ -365,7 +396,7 @@ class _LoadImagePageState extends State<LoadImagePage> {
                                   Row(
                                     children: [
                                       SizedBox(
-                                        width: 70,
+                                        width: pixelLength,
                                         child: ListView.builder(
                                             scrollDirection: Axis.vertical,
                                             shrinkWrap: true,
@@ -387,8 +418,8 @@ class _LoadImagePageState extends State<LoadImagePage> {
 
                                               return Container(
                                                 alignment: Alignment.center,
-                                                height: 70,
-                                                width: 70,
+                                                height: pixelLength,
+                                                width: pixelLength,
                                                 decoration: BoxDecoration(
                                                   color: Colors.blue,
                                                   border: Border.all(
@@ -397,16 +428,19 @@ class _LoadImagePageState extends State<LoadImagePage> {
                                                 ),
                                                 child: Text(
                                                   tempString,
-                                                  style: const TextStyle(
+                                                  style: TextStyle(
                                                     fontWeight: FontWeight.bold,
+                                                    fontSize: pixelNumSize,
                                                   ),
                                                 ),
                                               );
                                             }),
                                       ),
                                       SizedBox(
-                                        height: rowCountNums.length * 70,
-                                        width: colCountNums.length * 70,
+                                        height:
+                                            rowCountNums.length * pixelLength,
+                                        width:
+                                            colCountNums.length * pixelLength,
                                         child: GridView.builder(
                                           scrollDirection: Axis.vertical,
                                           shrinkWrap: true,
@@ -511,15 +545,15 @@ class _LoadImagePageState extends State<LoadImagePage> {
                                                   (DragStartDetails details) {
                                                 int newRow =
                                                     (details.globalPosition.dx /
-                                                                70)
+                                                                pixelLength)
                                                             .floor() -
                                                         1;
 
                                                 int newCol =
                                                     (details.globalPosition.dy /
-                                                                70)
+                                                                pixelLength)
                                                             .floor() -
-                                                        6;
+                                                        4;
 
                                                 startDragIndex = newCol *
                                                         colCountNums.length +
@@ -532,19 +566,22 @@ class _LoadImagePageState extends State<LoadImagePage> {
                                                   (DragUpdateDetails details) {
                                                 int newRow =
                                                     (details.globalPosition.dx /
-                                                                70)
+                                                                pixelLength)
                                                             .floor() -
                                                         1;
 
                                                 int newCol =
                                                     (details.globalPosition.dy /
-                                                                70)
+                                                                pixelLength)
                                                             .floor() -
-                                                        6;
+                                                        4;
 
                                                 currentDragIndex = newCol *
                                                         colCountNums.length +
                                                     newRow;
+
+                                                print(
+                                                    "check location $newRow $newCol");
 
                                                 print(
                                                     "index $startDragIndex $currentDragIndex");
@@ -557,29 +594,92 @@ class _LoadImagePageState extends State<LoadImagePage> {
                                                       currentDragIndex] = 1;
                                                   setState(() {});
                                                 }
-                                                // accumulatedDx +=
-                                                //     details.delta.dx;
+                                                accumulatedDx +=
+                                                    details.delta.dx;
 
-                                                // print(
-                                                //     "accumulatedDx $accumulatedDx ${details.delta.dx}");
+                                                print(
+                                                    "accumulatedDx $accumulatedDx ${details.delta.dx}");
 
-                                                // userMatrix1d[startDragIndex +
-                                                //     (accumulatedDx / 70)
-                                                //         .floor()] = 1;
-                                                // accumulatedDx = 0;
-                                                // setState(() {});
-                                              },
-                                              onHorizontalDragEnd:
-                                                  (DragEndDetails details) {
+                                                userMatrix1d[startDragIndex +
+                                                    (accumulatedDx /
+                                                            pixelNumSize)
+                                                        .floor()] = 1;
                                                 accumulatedDx = 0;
-                                                // int moveIndex =
-                                                //     (accumulatedDx / 70)
-                                                //         .floor();
+                                                setState(() {});
+                                              },
+                                              // onHorizontalDragEnd:
+                                              //     (DragEndDetails details) {
+                                              // accumulatedDx = 0;
+                                              // int moveIndex =
+                                              //     (accumulatedDx / 70)
+                                              //         .floor();
 
-                                                // accumulatedDx = 0;
+                                              // accumulatedDx = 0;
 
-                                                // print(
-                                                //     "end $startDragIndex $moveIndex ${startDragIndex + moveIndex}");
+                                              // print(
+                                              //     "end $startDragIndex $moveIndex ${startDragIndex + moveIndex}");
+                                              // },
+                                              onVerticalDragStart:
+                                                  (DragStartDetails details) {
+                                                int newRow =
+                                                    (details.globalPosition.dx /
+                                                                pixelLength)
+                                                            .floor() -
+                                                        1;
+
+                                                int newCol =
+                                                    (details.globalPosition.dy /
+                                                                pixelLength)
+                                                            .floor() -
+                                                        4;
+
+                                                startDragIndex = newCol *
+                                                        colCountNums.length +
+                                                    newRow;
+                                              },
+                                              onVerticalDragUpdate:
+                                                  (DragUpdateDetails details) {
+                                                int newRow =
+                                                    (details.globalPosition.dx /
+                                                                pixelLength)
+                                                            .floor() -
+                                                        1;
+
+                                                int newCol =
+                                                    (details.globalPosition.dy /
+                                                                pixelLength)
+                                                            .floor() -
+                                                        4;
+
+                                                currentDragIndex = newCol *
+                                                        colCountNums.length +
+                                                    newRow;
+
+                                                print(
+                                                    "vertical check location $newRow $newCol");
+
+                                                print(
+                                                    "vertical index $startDragIndex $currentDragIndex");
+
+                                                if ((startDragIndex -
+                                                            currentDragIndex)
+                                                        .abs() >
+                                                    0) {
+                                                  userMatrix1d[
+                                                      currentDragIndex] = 1;
+                                                  setState(() {});
+                                                  print(
+                                                      "accumulatedDx $accumulatedDy ${details.delta.dy}");
+
+                                                  userMatrix1d[startDragIndex +
+                                                      (accumulatedDx /
+                                                              pixelNumSize)
+                                                          .floor()] = 1;
+                                                  accumulatedDy = 0;
+                                                  setState(() {});
+                                                }
+                                                accumulatedDy +=
+                                                    details.delta.dy;
                                               },
                                               child: Container(
                                                 decoration: BoxDecoration(
@@ -626,7 +726,7 @@ class PixelArtPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint();
-    canvas.drawImage(image, Offset.zero, paint);
+    canvas.drawImage(image, const Offset(250, 0), paint);
   }
 
   @override
